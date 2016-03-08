@@ -32,27 +32,36 @@ console.log('\'Allo \'Allo!');
 // test1.__proto__ = TEST.prototype;
 // TEST.call(test1);
 
-function Test1(){
-  this.name = 'TEST1';
-};
+// function Test1(){
+//   this.name = 'TEST1';
+// };
 
-Test1.prototype.name = 'TEST1';
-Test1.prototype.show = function(){
-  console.log(this.name);
-};
+// Test1.prototype.name = 'TEST1';
+// Test1.prototype.show = function(){
+//   console.log(this.name);
+// };
 
-function Test2(){
-  this.name = 'hello';
-};
+// function Test2(){
+//   this.name = 'hello';
+// };
 
-Test2.prototype.hide = function(){
-  console.log('hide');
-};
+// Test2.prototype.hide = function(){
+//   console.log('hide');
+// };
 
-Test2.prototype = new Test1();
+// Test2.prototype = new Test1();
 
-var test = new Test2();
-console.log(test.show());
+// var test = new Test2();
+// console.log(test.show());
+// 
+
+// function checkNu(number_input) {
+//   var input_value = number_input.value;
+
+//   if(!input_value){
+
+//   }
+// }
 
 
 
