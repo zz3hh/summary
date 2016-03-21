@@ -5,6 +5,10 @@ javascript在前端和后台(nodejs)规则
 
 2.凡是next作为参数不做中间件说明的默认采用的[Koajs](http://koa.bootcss.com/)框架
 
+3.如果不是后台nodejs代码一般不会带有req,res,next作为参数
+
+4.此文以双方交谈的方式书写，交换思想，不是刻意让您接受，可以当做一种思考
+
 有事请留言，需留言者 [点这里](http://www.baiyatao.com/say)
 
 看到公司原来的代码，总感觉无从下手，添加新功能都不知道怎么下手，所以认为制定一套规则是刻不容缓。代码杂乱无章就是因为没有规则，人人都一套自己的规则，不同的规则混合在一起必定造成代码风格统一的道路上偏离主道，偏离主道的时间越长再想回到主道的困难就更多，也许我们会说创业公司嘛，能实现功能上线然后融资后再重构一遍就得了呗。铁打营盘流水的兵，如果刚刚开始编程就不考虑后期维护的话，新人无法维护前人的代码，后期开发的速度会慢慢降下来，直至拖死然后旧代码直接全部抛弃，利害就不累述了。我的规则的总结是片面的，小弟毕竟经验有限，其它书中都有规则的建议，书中有的我就不写出了，别弄得说此段代码出自哪里搞的像抄什么的，如有雷同纯属自学来自书籍中的知识的一种变种。
@@ -209,7 +213,80 @@ var post_b = function(req, res) {
 
 虽然后台代码要求我们要有异步编程思想，但是也不能把先天条件给忽略不计吧，上述代码只是一小部分，代码缩进，层级分开可以让我们代码看起来更美，更舒适，不满足提前结束访问，适时利用if尽快的给前端返回数据，非要让对象自己报错才知道错了，这能做好朋友吗？要为好朋友预见问题。
 
+###4.MVC Controller中require相同模块时代码记得归档
 
+下面代码是我在修改router文件下中index.js看到的代码，也许它被创造后运行完全没有问题，但是为什么还要拿出来说事情呢，因为首页新版要改变了，我要修改原来的代码，当您看到此段代码您会想到什么呢？代码完全没有问题；下面代码是原有的代码。
+
+```JavaScript
+var Role = require('../models/privilege').Role;
+var Client = require('../models/client').Client;
+var User = require('../models/user');
+var uap = require('ua-parser');
+var async = require('async');
+var moment = require('moment');
+var Position = require('../models/position').Position;
+var People = require('../models/people').People;
+var ShortenURL = require('../models/client').ShortenURL;
+var TaskToDo = require('../models/workflow').TaskToDo;
+var ProcessDefine = require('../models/workflow').ProcessDefine;
+var Questionnair360AndCAInstance = require('../models/pm').Questionnair360AndCAInstance;
+var QuestionnairInstance = require('../models/pm').QuestionnairInstance;
+var MBTIQuestionInstance = require('../models/pm').MBTIQuestionInstance;
+var EnneagramInstance = require('../models/pm').EnneagramInstance;
+var FreeWorkflowApproveInstance = require('../models/workflow_free').FreeWorkflowApproveInstance;
+var WorkReport = require('../models/pm').WorkReport;
+var Notification = require('../models/notification').Notification;
+var TaskDefine = require('../models/workflow').TaskDefine;
+var TaskInstance = require('../models/workflow').TaskInstance;
+var HomeMessage = require('../models/client').HomeMessage; //主页消息
+var Weather = require('../models/weather').Weather;
+
+var crypto = require('crypto');
+```
+
+nodejs的require查找策略
+
+原生模块在Node.js源代码编译的时候编译进了二进制执行文件，加载的速度最快。另一类文件模块是动态加载的，加载速度比原生模块慢。但是Node.js对原生模块和文件模块都进行了缓存，于是在第二次require时，是不会有重复开销的。尽管require方法极其简单，但是内部的加载却是十分复杂的，其加载优先级也各自不同。
+
+既然都是调用在同一个文件中对外提供的方法或属性，为什么要多次调用require加载同一个文件呢，建议同一个文件加载一次就好，虽然第二次加载会从缓存中取，但是我们在第一次就用一个变量存下来岂不更好。
+
+
+```JavaScript
+var uap = require('ua-parser');
+var async = require('async');
+var moment = require('moment');
+var crypto = require('crypto');
+
+var Role = require('../models/privilege').Role;
+var User = require('../models/user');
+var Position = require('../models/position').Position;
+var People = require('../models/people').People;
+var FreeWorkflowApproveInstance = require('../models/workflow_free').FreeWorkflowApproveInstance;
+var Notification = require('../models/notification').Notification;
+var Weather = require('../models/weather').Weather;
+
+var ClientModels = require('../models/client');
+var Client = ClientModels.Client;
+var ShortenURL = ClientModels.ShortenURL;
+var HomeMessage = ClientModels.HomeMessage; //主页消息
+// 首页主页模板管理
+var IndexModule = ClientModels.IndexModule;
+var UserIndexModule = ClientModels.UserIndexModule;
+var UserConfigModule = ClientModels.UserConfigModule;
+
+var workflow = require('../models/workflow');
+var TaskToDo = workflow.TaskToDo;
+var ProcessDefine = workflow.ProcessDefine;
+var TaskDefine = workflow.TaskDefine;
+var TaskInstance = workflow.TaskInstance;
+
+var pm = require('../models/pm');
+var Questionnair360AndCAInstance = pm.Questionnair360AndCAInstance;
+var QuestionnairInstance = pm.QuestionnairInstance;
+var MBTIQuestionInstance = pm.MBTIQuestionInstance;
+var EnneagramInstance = pm.EnneagramInstance;
+var WorkReport = pm.WorkReport;
+```
 
 更新待续中，只是为了帮助和我一起编码的朋友们，现在先到这里。您若遇到了问题也可以和大家一起分享的哦，独乐乐不如众乐乐。
 
